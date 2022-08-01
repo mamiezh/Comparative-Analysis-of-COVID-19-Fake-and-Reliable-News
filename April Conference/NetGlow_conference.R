@@ -14,7 +14,6 @@ library('reshape2')
 library('wordcloud')    
 library('wordcloud2')
 library('RColorBrewer')
-library('radarchart')
 
 # ---- Databases ----
 
@@ -162,7 +161,7 @@ covid_true_new %>%
 
 
 # ---- Radar Chart ----
-
+library('radarchart')
 covid_true_new1<-covid_true_new
 covid_fake_new1<-covid_fake_new 
 
