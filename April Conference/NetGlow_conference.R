@@ -14,6 +14,12 @@ library('reshape2')
 library('wordcloud')    
 library('wordcloud2')
 library('RColorBrewer')
+library('radarchart')
+library('stopwords') 
+library('dplyr')
+library('tibble')
+library('knitr')
+library('gridExtra')
 
 # ---- Databases ----
 
@@ -36,7 +42,13 @@ covid_fake_new <- covid_fake %>%
   filter(word != "de",
          str_detect(word, "[a-z]"))
 
-covid_fake_new %>%
+stopword <- as_tibble(stopwords::stopwords("en")) 
+stopword <- rename(stopword, word=value)
+covid_fake_new_clean <- anti_join(covid_fake_new, stopword, by = 'word')
+newstopwords <- tibble(word = c('corona', 'virus', 'coronavirus', 'ncov', 'covid'))
+covid_fake_new_clean <- anti_join(covid_fake_new_clean, newstopwords, by = "word")
+
+covid_fake_new_clean %>%
   count(word, sort = TRUE) %>%
   mutate(word = fct_reorder(word, n)) %>%
   head(20) %>%
@@ -49,7 +61,7 @@ covid_fake_new %>%
   theme_classic()+
   theme(text = element_text(family = "Times", face = "bold", size = 14))
 
-covid_fake_filtered <- covid_fake_new %>%
+covid_fake_filtered <- covid_fake_new_clean %>%
   add_count(word) %>%
   filter(n >= 10)
 
@@ -72,7 +84,13 @@ covid_true_new <- covid_true %>%
   filter(word != "de",
          str_detect(word, "[a-z]"))
 
-covid_true_new %>%
+stopword <- as_tibble(stopwords::stopwords("en")) 
+stopword <- rename(stopword, word=value)
+covid_true_new_clean <- anti_join(covid_true_new, stopword, by = 'word')
+newstopwords <- tibble(word = c('corona', 'virus', 'coronavirus', 'ncov', 'covid'))
+covid_true_new_clean <- anti_join(covid_true_new_clean, newstopwords, by = "word")
+
+covid_true_new_clean %>%
   count(word, sort = TRUE) %>%
   mutate(word = fct_reorder(word, n)) %>%
   head(20) %>%
@@ -85,7 +103,7 @@ covid_true_new %>%
   theme_classic()+
   theme(text = element_text(family = "Times", face = "bold", size = 14))
 
-covid_true_filtered <- covid_true_new %>%
+covid_true_filtered <- covid_true_new_clean %>%
   add_count(word) %>%
   filter(n >= 10)
 
