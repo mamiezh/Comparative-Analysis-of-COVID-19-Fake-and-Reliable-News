@@ -22,8 +22,6 @@ covid <- read_excel("fake_new_dataset.xlsx")
 covid_true <- subset(covid, subset = covid$label == "1")
 covid_fake <- subset(covid, subset = covid$label == "0")
 
-afinn <- read_csv("Afinn.csv",
-                  col_types = cols(word = col_character(), value = col_double()))
 bing <- read_csv("Bing.csv",
                  col_types = cols(word = col_character(), sentiment = col_character()))
 nrc <- read_csv("NRC.csv",
