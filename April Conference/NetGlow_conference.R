@@ -220,6 +220,71 @@ library('ergm')
 #library('igraph')
 
 
+library(knitr)
+library('gridExtra')
+pdf("trade.pdf", height=11, width=8.5)
+grid.table(df)
+dev.off()
+centralitiesF <- data.frame(row.names   = V(Graph_top_F)$name,
+                          degree      = degree(Graph_top_F),
+                          betweenness = betweenness(Graph_top_F),
+                          closseness = closeness(Graph_top_F),
+                          eigenvector = evcent(Graph_top_F)$vector, 
+                          pagerank = page_rank(Graph_top_F)$vector)
+pdf("centralities_fake.pdf", height=11, width=8.5)
+grid.table(centralitiesF)
+dev.off()
 
+kable(centralities)
+
+centralitiesT <- data.frame(row.names   = V(Graph_top_T)$name,
+                           degree      = degree(Graph_top_T),
+                           betweenness = betweenness(Graph_top_T),
+                           #closseness = closeness(Graph_top_T),
+                           eigenvector = evcent(Graph_top_T)$vector, 
+                           pagerank = page_rank(Graph_top_T)$vector)
+pdf("centralities_true.pdf", height=40, width=8.5)
+grid.table(centralitiesT)
+dev.off()
+
+kable(centralities)
+
+
+
+
+types <-c('003','012','102','021D','021U','021C','111D','111U','030T','030C','201','120D','120U','120C', '210', '300')
+t<-sapply(list(Graph_top_F, Graph_top_T),triad_census)
+colnames(t) <-c('FAKE', 'TRUE')
+triads <- data.frame(t)
+rownames(triads) <- types
+
+pdf("triads.pdf", height=11, width=8.5)
+grid.table(triads)
+dev.off()
+kable(triads, label="Triad Census")
+
+tr <-sapply(list(Graph_top_F, Graph_top_T),transitivity)
+transitivities <- data.frame(transitivity=tr)
+rownames(transitivities) <- c("FAKE", 'TRUE')
+pdf("transitivity.pdf", height=11, width=8.5)
+grid.table(transitivities)
+dev.off()
+
+d<-sapply(list(Graph_top_F, Graph_top_T),dyad.census)
+dyads <- data.frame(d)
+colnames(dyads) <- c("FAKE", 'TRUE')
+rownames(dyads) <- c("mut", 'asym', 'null')
+pdf("dyads.pdf", height=1100, width=8.5)
+grid.table(dyads, rows=c("mut", 'asym', 'null'))
+dev.off()
+
+den <-sapply(list(Graph_top_F, Graph_top_T),edge_density)
+density <- data.frame(density=den)
+rownames(density) <- c("FAKE", 'TRUE')
+pdf("density.pdf", height=11, width=8.5)
+grid.table(density)
+dev.off()
+
+kable(dyads, label="Dyad Census")
 
 
