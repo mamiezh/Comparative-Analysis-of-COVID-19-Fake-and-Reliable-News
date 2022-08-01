@@ -29,7 +29,7 @@ bing <- read_csv("Bing.csv",
 nrc <- read_csv("NRC.csv",
                 col_types = cols(word = col_character(), sentiment = col_character()))
 
-# ---- Most frequent words ----
+# ---- Most frequent words in fake news ----
 
 covid_fake_new <- covid_fake %>%
   filter(!is.na(title)) %>%
@@ -64,6 +64,8 @@ top_word_covid_fake <- covid_fake_filtered %>%
   select(post_id, word) %>%
   pairwise_cor(word, post_id, sort = TRUE) %>%
   head(100)
+
+# ---- Most frequent words in reliable news ----
 
 covid_true_new <- covid_true %>%
   filter(!is.na(title)) %>%
