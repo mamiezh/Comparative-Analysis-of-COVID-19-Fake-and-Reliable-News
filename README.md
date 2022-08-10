@@ -1,4 +1,4 @@
-# Paper abstract
+# Paper abstract(Needs to be reformulated, less academic, more inclusive in a sence of understanding)
 
 The COVID-19 pandemic has been an urgent topic of discussion in various media and social networks for a couple of years already. The lack of research and the rapid spread of the virus around the world only con-tribute to an increase in media interest in this topic, but these same reasons contribute to the emergence of many fake-news headlines and conspiracy theories.
 
