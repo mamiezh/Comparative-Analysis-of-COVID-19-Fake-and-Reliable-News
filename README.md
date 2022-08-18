@@ -6,6 +6,8 @@
 The motivation behind this research is fully academic, as we were curious about the usage of network statistics with language data.
 During our projects we used several methods - ERGM, Sentiment analysis using premarked lexicons, and pairwise corr for nets. The whole research was based on agenda theory, according to which media coverage of a topic has an impact on public awareness of it. All credentials, abstract, and used literature can be found in the paper. 
 
+The main code plots topwords for both fake and true headings. Adding to exponential models the the branch with network census is in progress. 
+
 
 
 #### Table of contents 
