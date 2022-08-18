@@ -11,3 +11,9 @@ With the help of network analysis, the connections between the words most intens
 The main results were that fake news headlines have less thematic diversity compared to real ones and focus more on emotional presentation, while the real news has a focus on informative and versatile news with capturing more topics.
 
 The study was conducted in an exploratory format and can be used as a basis for a deeper analysis of fake news related to the COVID-19 pandemic. For example, one of the prospects for the development of research is the expansion of the database, including taking into account the type of news source, news coverage, geo-graphical location, etc. The research can also be developed using additional data analysis methods, such as sentimental analysis and ERGM models.
+### Table of contents 
+- **Bing.csv** - semantic lexicon from Bing research
+- **NRC.csv** - semantic lexicon from National Research of Canada 
+- **Afinn.csv** - semantic lexicon from Afinn research 
+- **NetGlow_conference.R** - computes ERGM, pairwise corr and plots informative graphs
+- **fake_new_dataset.xlsx** - main preprocessed dataset
