@@ -1,6 +1,6 @@
 # Comparative Analysis of COVID 19 Fake and Reliable News
 
-###### The repository is used to store files which were used in the reseach of Covid-19 related news
+## The repository is used to store files which were used in the reseach of Covid-19 related news
 
 
 The motivation behind this research is fully academic, as we were curious about the usage of network statistics with language data.
