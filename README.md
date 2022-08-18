@@ -1,6 +1,6 @@
 # Comparative Analysis of COVID 19 Fake and Reliable News
 
-##### The repository is used to store files which were used in the reseach of Covid-19 related news
+#### The repository is used to store files which were used in the reseach of Covid-19 related news
 
 
 The motivation behind this research is fully academic, as we were curious about the usage of network statistics with language data.
@@ -8,7 +8,7 @@ During our projects we used several methods - ERGM, Sentiment analysis using pre
 
 
 
-### Table of contents 
+#### Table of contents 
 - **Bing.csv** - semantic lexicon from Bing research
 - **NRC.csv** - semantic lexicon from National Research of Canada 
 - **Afinn.csv** - semantic lexicon from Afinn research 
