@@ -13,7 +13,6 @@ library("gridExtra")
 library("reshape2")
 library("RColorBrewer")
 
-
 # ---- Databases ----
 library("readxl")
 
@@ -47,15 +46,11 @@ covid_fake_new %>%
   count(word, sort = TRUE) %>%
   mutate(word = fct_reorder(word, n)) %>%
   head(20) %>%
-  ggplot(aes(word, n)) +
-  geom_col(
-    width = 0.75,
-    col = "white",
-    fill = "#99d8c9"
-  ) +
-  coord_flip() +
-  labs(title = "Common words in fake news titles") +
-  theme_classic() 
+  ggplot(aes(word, n))+
+    geom_col(width = 0.75, col = "white", fill = "#99d8c9")+
+    coord_flip()+
+    labs(title = "Common words in fake news titles")+
+    theme_classic()
 
 covid_fake_filtered <- covid_fake_new %>%
   add_count(word) %>%
@@ -161,7 +156,7 @@ top_word_covid_true %>%
 
 
 colsR_B <- brewer.pal(4, name = "RdBu")
-display.brewer.pal(4, name = "RdBu")
+#display.brewer.pal(4, name = "RdBu")
 
 covid_fake_new %>%
   inner_join(bing, by = "word") %>%
@@ -236,9 +231,6 @@ plt <- char_sentiment %>%
 plt
 colsR_B[c(1, 4)]
 
-
-
-
 # ----- Создаем сети по Fake новостям ----
 
 #detach(package:igraph)
@@ -251,10 +243,8 @@ library("sna")
 library("ergm")
 library("igraph")
 
-
 edges_F <- as.data.frame(top_word_covid_fake)
 names(edges_F) <- c('ego_id', 'alter_id', 'correlation')
-
 
 nodes_F <-as.data.frame(unique(edges_F$ego_id))
 names(nodes_F) <- c('word')
@@ -286,11 +276,6 @@ net_F<-asNetwork(net_F)
 
 net_F %e% "correlation" <- edges_F[,3]
 net_F %v% "sentiment" <- nodes_F[,3]
-
-
-
-
-
 
 # ----- Создаем сети по True новостям ----
 
@@ -332,42 +317,64 @@ net_T %v% "sentiment" <- nodes_T[,3]
 
 # ----- ERGM False----
 
-set.seed(2020)
+set.seed(1)
 test_False.01 <-ergm(net_F~edges)
 summary(test_False.01)
 
-sentiment_False <-ergm(net_F ~ edges + nodefactor('sentiment', base = 2)) 
-summary(sentiment_False)
+structual_False <-ergm(net_F~edges + degree(1)+degree(2)+degree(3) + degree(4)+degree(5))
+summary(structual_False)
 
-gwesp_False <-ergm(net_F ~ edges + gwesp(0.1,fixed=T))
+gwesp_False <-ergm(formula = net_F ~ edges +degree(2)+degree(3) + degree(4)+degree(5) + gwesp(0.5,fixed=T),burnin =15000, MCMCsamplesize=30000,verbose=FALSE)
 summary(gwesp_False)
 
-#gwesp2_False <-ergm(net_F ~ edges + nodefactor('sentiment', base = 2)+ gwesp(0.1,fixed=T)+ degree(1), burnin=15000,MCMCsamplesize=30000,verbose=FALSE) 
-#summary(gwesp2_False)
-#
-#
-#degree_False <-ergm(net_F ~ edges + nodefactor('sentiment', base = 2)+ gwesp(0.1,fixed=T)+ degree(1) )
-#summary(degree_False)
+sentiment_False <-ergm(net_F ~ edges +degree(2)+degree(3) + gwesp(0.5,fixed=T) + nodefactor('sentiment', base = 2),burnin =15000, MCMCsamplesize=30000,verbose=FALSE) 
+summary(sentiment_False)
 
-# ----- ERGM False----
+Final <-ergm(net_F ~ edges +degree(2)+degree(3) +degree(4)+ degree(5)+ gwesp(0.5,fixed=T)+nodefactor('sentiment', base = 2), burnin =15000, MCMCsamplesize=30000,verbose=FALSE) 
 
-set.seed(2020)
+summary(Final)
+
+
+gwesp_False_gof <- gof(Final, GOF = ~distance + espartners + degree + triadcensus,
+    verbose = TRUE, interval = 5e+4)
+
+par(mfrow = c(3,2))
+plot(gwesp_False_gof, cex.lab=1.6, cex.axis=1.6, plotlogodds = TRUE)
+
+
+# ----- ERGM TRUE----
+
 test_True.01 <-ergm(net_T~edges)
 summary(test_True.01)
 
 #triangles_True <-ergm(net_T ~ edges + triangle) 
 #summary(triangles_True)
 
-sentiment_True <-ergm(net_T ~ edges + nodefactor('sentiment', base = 2)) 
-summary(sentiment_True)
+structual_True.01 <-ergm(net_T~edges+degree(1)+degree(2)+degree(3))
+summary(structual_True.01)
 
-#gwesp_True <-ergm(net_T ~ edges + gwesp(0.1,fixed=T)) 
-#summary(sentiment_True_Top)
 
-degree_True<-ergm(net_T ~ edges +nodefactor('sentiment', base = 2)+ degree(1)+ degree(2)+degree(3))
+structual_True.02 <-ergm(net_T ~ edges + gwesp(0.1,fixed=T)+degree(2)+degree(3)) 
+summary(structual_True.02)
+
+#sentiment_True_gwesp <-ergm(net_T ~ edges+degree(2)+degree(3)+ gwesp(0.05 , fixed=T) + nodefactor('sentiment'),burnin =15000, MCMCsamplesize=30000,verbose=FALSE) 
+#summary(sentiment_True_gwesp)
+
+sentiment_True_degree <-ergm(net_T ~ edges+degree(1)+degree(2)+ degree(3) + nodefactor('sentiment', base=2) ) 
+summary(sentiment_True_degree)
+
+gwesp_True_gof <- gof(sentiment_True_degree, GOF = ~distance + espartners + degree + triadcensus,
+                       verbose = TRUE, interval = 5e+4)
+
+par(mfrow = c(3,2))
+plot(gwesp_True_gof, cex.lab=1.6, cex.axis=1.6, plotlogodds = TRUE)
+
+#full_True <-ergm(net_T ~ edges + gwesp(0.1,fixed=T)+degree(3) +nodefactor('sentiment', base = 2)) 
+#summary(gwesp_True)
+
+#gwesp2_True <-ergm(net_T ~ edges + gwesp(0.1,fixed=T)+degree(1)+nodefactor('sentiment', base = 2), burnin =15000, MCMCsamplesize=30000,verbose=FALSE) 
+#summary(gwesp_True)
+
+
+degree_True <-ergm(formula = net_T ~ edges +degree(1)+degree(2)+degree(3) + nodefactor("sentiment", base = 2))
 summary(degree_True)
-
-
-
-
-
