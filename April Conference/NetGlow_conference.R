@@ -137,7 +137,7 @@ top_word_covid_fake %>%
 
 # ---- Reliable graphs ----
 
-covid_true_filtered <- covid_true_new %>%
+covid_true_filtered <- covid_true_new_clean %>%
   add_count(word) %>%
   filter(n >= 10)
 
@@ -173,7 +173,7 @@ top_word_covid_true %>%
 colsR_B <- brewer.pal(4, name = "RdBu")
 #display.brewer.pal(4, name = "RdBu")
 
-covid_fake_new %>%
+covid_fake_new_clean %>%
   inner_join(bing, by = "word") %>%
   count(word, sentiment, sort = T) %>%
   acast(word ~ sentiment, value.var = "n", fill = 0) %>%
@@ -185,7 +185,7 @@ covid_fake_new %>%
 
 # ---- Sentimental analysis for reliable ----
 
-covid_true_new %>%
+covid_true_new_clean %>%
   inner_join(bing, by = "word") %>%
   count(word, sentiment, sort = T) %>%
   acast(word ~ sentiment, value.var = "n", fill = 0) %>%
@@ -198,8 +198,8 @@ covid_true_new %>%
 # ---- Radar Chart ----
 library("radarchart")
 
-covid_true_new1 <- covid_true_new
-covid_fake_new1 <- covid_fake_new
+covid_true_new1 <- covid_true_new_clean
+covid_fake_new1 <- covid_fake_new_clean
 
 FAKE <- c()
 for (i in 1:length(covid_fake_new1$post_id)) {
