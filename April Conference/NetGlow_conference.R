@@ -20,14 +20,13 @@ covid <- read_excel("fake_new_dataset.xlsx")
 covid_true <- subset(covid, subset = covid$label == "1")
 covid_fake <- subset(covid, subset = covid$label == "0")
 
-afinn <- read_csv("Afinn.csv",
-  col_types = cols(word = col_character(), value = col_double())
-)
+
 bing <- read_csv("Bing.csv",
-  col_types = cols(word = col_character(), sentiment = col_character())
+                 col_types = cols(word = col_character(), sentiment = col_character())
 )
+
 nrc <- read_csv("NRC.csv",
-  col_types = cols(word = col_character(), sentiment = col_character())
+                col_types = cols(word = col_character(), sentiment = col_character())
 )
 
 # ---- Most frequent words ----
@@ -53,10 +52,10 @@ covid_fake_new_clean %>%
   mutate(word = fct_reorder(word, n)) %>%
   head(20) %>%
   ggplot(aes(word, n))+
-    geom_col(width = 0.75, col = "white", fill = "#99d8c9")+
-    coord_flip()+
-    labs(title = "Common words in fake news titles")+
-    theme_classic()
+  geom_col(width = 0.75, col = "white", fill = "#99d8c9")+
+  coord_flip()+
+  labs(title = "Common words in fake news titles")+
+  theme_classic()
 
 covid_fake_filtered <- covid_fake_new_clean %>%
   add_count(word) %>%
@@ -69,8 +68,8 @@ covid_fake_all <- covid_fake_filtered %>%
 top_word_covid_fake <- covid_fake_filtered %>%
   select(post_id, word) %>%
   pairwise_cor(word, post_id, sort = T) %>% 
- head(100)
-  
+  head(100)
+
 
 
 covid_true_new <- covid_true %>%
@@ -110,7 +109,7 @@ covid_true_filtered <- covid_true_new_clean %>%
 top_word_covid_true <- covid_true_filtered %>%
   select(post_id, word) %>%
   pairwise_cor(word, post_id, sort = TRUE) %>%
- head(100)
+  head(100)
 
 # ---- Fake graphs ----
 
@@ -195,57 +194,6 @@ covid_true_new_clean %>%
   )
 
 
-# ---- Radar Chart ----
-library("radarchart")
-
-covid_true_new1 <- covid_true_new_clean
-covid_fake_new1 <- covid_fake_new_clean
-
-FAKE <- c()
-for (i in 1:length(covid_fake_new1$post_id)) {
-  FAKE <- append(FAKE, "FAKE")
-}
-FAKE
-
-RIGHT <- c()
-for (i in 1:length(covid_true_new1$post_id)) {
-  RIGHT <- append(RIGHT, "TRUE")
-}
-
-RIGHT
-
-covid_fake_new1$status <- FAKE
-covid_true_new1$status <- RIGHT
-
-covid_new <- rbind(covid_fake_new1, covid_true_new1)
-
-char_sentiment <- covid_new %>%
-  inner_join(nrc, "word") %>%
-  filter(!sentiment %in% c("positive", "negative")) %>%
-  group_by(status, sentiment) %>%
-  count(status, sentiment) %>%
-  select(status, sentiment, char_sentiment_count = n)
-
-total_char <- covid_new %>%
-  inner_join(nrc, "word") %>%
-  filter(!sentiment %in% c("positive", "negative")) %>%
-  count(status) %>%
-  select(status, total = n)
-
-plt <- char_sentiment %>%
-  inner_join(total_char, by = "status") %>%
-  mutate(percent = char_sentiment_count / total * 100) %>%
-  select(-char_sentiment_count, -total) %>%
-  spread(status, percent) %>%
-  chartJSRadar(
-    showToolTipLabel = T, maxScale = 25, responsive = T,
-    addDots = T,
-    colMatrix = grDevices::col2rgb(colsR_B[c(1, 4)]),
-    lineAlpha = 0.7, polyAlpha = 0.2
-  )
-plt
-colsR_B[c(1, 4)]
-
 # ----- Создаем сети по Fake новостям ----
 
 #detach(package:igraph)
@@ -258,7 +206,16 @@ library("sna")
 library("ergm")
 library("igraph")
 
-edges_F <- as.data.frame(top_word_covid_fake)
+covid_fake_filtered_1 <- covid_fake_new %>%
+  add_count(word) %>%
+  filter(n >= 10)
+
+top_word_covid_fake_1 <- covid_fake_filtered_1 %>%
+  select(post_id, word) %>%
+  pairwise_cor(word, post_id, sort = T) %>% 
+  head(100)
+
+edges_F <- as.data.frame(top_word_covid_fake_1)
 names(edges_F) <- c('ego_id', 'alter_id', 'correlation')
 
 nodes_F <-as.data.frame(unique(edges_F$ego_id))
@@ -294,8 +251,16 @@ net_F %v% "sentiment" <- nodes_F[,3]
 
 # ----- Создаем сети по True новостям ----
 
+covid_true_filtered_1 <- covid_true_new %>%
+  add_count(word) %>%
+  filter(n >= 10)
 
-edges_T <- as.data.frame(top_word_covid_true)
+top_word_covid_true_1 <- covid_true_filtered_1 %>%
+  select(post_id, word) %>%
+  pairwise_cor(word, post_id, sort = TRUE) %>%
+  head(100)
+
+edges_T <- as.data.frame(top_word_covid_true_1)
 names(edges_T) <- c('ego_id', 'alter_id', 'correlation')
 
 
@@ -352,7 +317,7 @@ summary(Final)
 
 
 gwesp_False_gof <- gof(Final, GOF = ~distance + espartners + degree + triadcensus,
-    verbose = TRUE, interval = 5e+4)
+                       verbose = TRUE, interval = 5e+4)
 
 par(mfrow = c(3,2))
 plot(gwesp_False_gof, cex.lab=1.6, cex.axis=1.6, plotlogodds = TRUE)
@@ -377,24 +342,21 @@ summary(structual_True.02)
 #summary(sentiment_True_gwesp)
 
 set.seed(2020)
-sentiment_True_degree <-ergm(net_T ~ edges +degree(1)+ degree(2)+degree(3) + nodefactor('sentiment', base=2),burnin =15000, MCMCsamplesize=30000,verbose=FALSE ) 
+sentiment_True_degree <-ergm(net_T ~ edges + degree(2)+degree(3) + nodefactor('sentiment', base=2),burnin =15000, MCMCsamplesize=30000,verbose=FALSE ) 
 summary(sentiment_True_degree)
 
 gwesp_True_gof <- gof(sentiment_True_degree, GOF = ~distance + espartners + degree + triadcensus,
-                       verbose = TRUE, interval = 5e+4)
+                      verbose = TRUE, interval = 5e+4)
 
 par(mfrow = c(3,2))
 plot(gwesp_True_gof, cex.lab=1.6, cex.axis=1.6, plotlogodds = TRUE)
 
-full_True <-ergm(net_T ~ edges + gwesp(0.1,fixed=T)+degree(3)+degree(2) +nodefactor('sentiment', base = 2)) 
-summary(full_True)
+#full_True <-ergm(net_T ~ edges + gwesp(0.1,fixed=T)+degree(3)+degree(2) +nodefactor('sentiment', base = 2)) 
+#summary(full_True)
 
 #gwesp2_True <-ergm(net_T ~ edges + gwesp(0.1,fixed=T)+degree(1)+nodefactor('sentiment', base = 2), burnin =15000, MCMCsamplesize=30000,verbose=FALSE) 
 #summary(gwesp_True)
 
-
-degree_True <-ergm(formula = net_T ~ edges +degree(1)+degree(2)+degree(3) + nodefactor("sentiment", base = 2),burnin =15000, MCMCsamplesize=30000,verbose=FALSE )
-summary(degree_True)
-
-
+#degree_True <-ergm(formula = net_T ~ edges +degree(1)+degree(2)+degree(3) + nodefactor("sentiment", base = 2),burnin =15000, MCMCsamplesize=30000,verbose=FALSE )
+#summary(degree_True)
 
